@@ -76,7 +76,14 @@ for epoch in range(1, CONFIG.max_epochs + 1):
     for x, y in data.train:
         x, y = x.to(device), y.to(device)
         if CONFIG.adv_train:
-            x = projected_gradient_descent(model, x, CONFIG.eps, 0.01, 40, np.inf)
+            x = projected_gradient_descent(
+                model_fn=model,
+                x=x,
+                eps=CONFIG.eps,
+                eps_iter=0.01,
+                nb_iter=40,
+                norm=np.inf,
+            )
         optimizer.zero_grad()
         loss = loss_fn(model(x), y)
         loss.backward()
@@ -91,8 +98,15 @@ with torch.no_grad():
     report = EasyDict(nb_test=0, correct=0, correct_fgm=0, correct_pgd=0)
     for x, y in data.test:
         x, y = x.to(device), y.to(device)
-        x_fgm = fast_gradient_method(model, x, CONFIG.eps, np.inf)
-        x_pgd = projected_gradient_descent(model, x, CONFIG.eps, 0.01, 40, np.inf)
+        x_fgm = fast_gradient_method(model_fn=model, x=x, eps=CONFIG.eps, norm=np.inf)
+        x_pgd = projected_gradient_descent(
+            model_fn=model,
+            x=x,
+            eps=CONFIG.eps,
+            eps_iter=0.01,
+            nb_iter=40,
+            norm=np.inf,
+        )
         _, y_pred = model(x).max(1)
         _, y_pred_fgm = model(x_fgm).max(1)
         _, y_pred_pgd = model(x_pgd).max(1)
