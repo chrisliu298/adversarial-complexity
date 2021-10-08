@@ -16,23 +16,23 @@ from datasets import MNISTDataset
 class CNN(nn.Module):
     def __init__(self, in_channels=1):
         super().__init__()
-        self.conv1 = nn.Conv2d(in_channels, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.fc1 = nn.Linear(64 * 5 * 5, 1024)
-        self.fc2 = nn.Linear(1024, 10)
+        self.conv1_block = nn.Sequential(
+            nn.Conv2d(in_channels, 32, 3, 1), nn.ReLU(), nn.MaxPool2d((2, 2))
+        )
+        self.conv2_block = nn.Sequential(
+            nn.Conv2d(32, 64, 3, 1), nn.ReLU(), nn.MaxPool2d((2, 2))
+        )
+        self.fc_block = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(64 * 5 * 5, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 10),
+        )
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, 2)
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, 2)
-        x = torch.flatten(x, 1)
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
+        x = self.conv1_block(x)
+        x = self.conv2_block(x)
+        output = self.fc_block(x)
         return output
 
 
@@ -87,30 +87,31 @@ for epoch in range(1, CONFIG.max_epochs + 1):
     )
 
 model.eval()
-report = EasyDict(nb_test=0, correct=0, correct_fgm=0, correct_pgd=0)
-for x, y in data.test:
-    x, y = x.to(device), y.to(device)
-    x_fgm = fast_gradient_method(model, x, CONFIG.eps, np.inf)
-    x_pgd = projected_gradient_descent(model, x, CONFIG.eps, 0.01, 40, np.inf)
-    _, y_pred = model(x).max(1)
-    _, y_pred_fgm = model(x_fgm).max(1)
-    _, y_pred_pgd = model(x_pgd).max(1)
-    report.nb_test += y.size(0)
-    report.correct += y_pred.eq(y).sum().item()
-    report.correct_fgm += y_pred_fgm.eq(y).sum().item()
-    report.correct_pgd += y_pred_pgd.eq(y).sum().item()
-print(
-    "test acc on clean examples (%): {:.3f}".format(
-        report.correct / report.nb_test * 100.0
+with torch.no_grad():
+    report = EasyDict(nb_test=0, correct=0, correct_fgm=0, correct_pgd=0)
+    for x, y in data.test:
+        x, y = x.to(device), y.to(device)
+        x_fgm = fast_gradient_method(model, x, CONFIG.eps, np.inf)
+        x_pgd = projected_gradient_descent(model, x, CONFIG.eps, 0.01, 40, np.inf)
+        _, y_pred = model(x).max(1)
+        _, y_pred_fgm = model(x_fgm).max(1)
+        _, y_pred_pgd = model(x_pgd).max(1)
+        report.nb_test += y.size(0)
+        report.correct += y_pred.eq(y).sum().item()
+        report.correct_fgm += y_pred_fgm.eq(y).sum().item()
+        report.correct_pgd += y_pred_pgd.eq(y).sum().item()
+    print(
+        "test acc on clean examples (%): {:.3f}".format(
+            report.correct / report.nb_test * 100.0
+        )
     )
-)
-print(
-    "test acc on FGM adversarial examples (%): {:.3f}".format(
-        report.correct_fgm / report.nb_test * 100.0
+    print(
+        "test acc on FGM adversarial examples (%): {:.3f}".format(
+            report.correct_fgm / report.nb_test * 100.0
+        )
     )
-)
-print(
-    "test acc on PGD adversarial examples (%): {:.3f}".format(
-        report.correct_pgd / report.nb_test * 100.0
+    print(
+        "test acc on PGD adversarial examples (%): {:.3f}".format(
+            report.correct_pgd / report.nb_test * 100.0
+        )
     )
-)
