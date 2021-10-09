@@ -17,14 +17,16 @@ class CNN(nn.Module):
     def __init__(self, in_channels=1):
         super().__init__()
         self.conv1_block = nn.Sequential(
-            nn.Conv2d(in_channels, 32, 3, 1), nn.ReLU(), nn.MaxPool2d((2, 2))
+            nn.Conv2d(in_channels, 32, 5, 1, padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d((2, 2)),
         )
         self.conv2_block = nn.Sequential(
-            nn.Conv2d(32, 64, 3, 1), nn.ReLU(), nn.MaxPool2d((2, 2))
+            nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
         )
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64 * 5 * 5, 1024),
+            nn.Linear(64 * 7 * 7, 1024),
             nn.ReLU(),
             nn.Linear(1024, 10),
         )
@@ -67,7 +69,7 @@ print(summary(model, input_size=(CONFIG.batch_size, 1, 28, 28)))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 if device == "cuda":
     model = model.cuda()
-loss_fn = torch.nn.CrossEntropyLoss(reduction="mean")
+loss_fn = torch.nn.CrossEntropyLoss(reduction="sum")
 optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG.learning_rate)
 
 model.train()
