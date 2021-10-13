@@ -13,7 +13,7 @@ from torchvision.datasets import CIFAR10, MNIST, FashionMNIST
 from tqdm import tqdm
 
 from datasets import CIFAR10DataModule, MNISTDataModule
-from model import MLP, ResNet, SimpleCNN
+from model import MLP, VGG, AlexNet, GoogLeNet, ResNet, SimpleCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)

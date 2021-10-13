@@ -7,7 +7,7 @@ from cleverhans.torch.attacks.projected_gradient_descent import (
     projected_gradient_descent,
 )
 from torchmetrics.functional.classification import accuracy
-from torchvision.models import resnet18
+from torchvision.models import resnet18, alexnet, vgg11_bn, googlenet
 
 
 class BaseModel(pl.LightningModule):
@@ -141,6 +141,45 @@ class SimpleCNN(BaseModel):
         return output
 
 
+class AlexNet(BaseModel):
+    def __init__(self, in_channels, lr=1e-3):
+        super().__init__(lr)
+        self.alexnet = alexnet(pretrained=True)
+        self.alexnet.features[0] = nn.Conv2d(
+            in_channels, 64, kernel_size=11, stride=4, padding=2
+        )
+        self.alexnet.classifier[-1] = nn.Linear(4096, 10, bias=True)
+
+    def forward(self, x):
+        return self.alexnet(x)
+
+
+class VGG(BaseModel):
+    def __init__(self, in_channels, lr=1e-3):
+        super().__init__(lr)
+        self.vgg = vgg11_bn(pretrained=True)
+        self.vgg.features[0] = nn.Conv2d(
+            in_channels, 64, kernel_size=3, stride=1, padding=1
+        )
+        self.vgg.classifier[-1] = nn.Linear(4096, 10, bias=True)
+
+    def forward(self, x):
+        return self.vgg(x)
+
+
+class GoogLeNet(BaseModel):
+    def __init__(self, in_channels, lr=1e-3):
+        super().__init__(lr)
+        self.googlenet = googlenet(pretrained=True)
+        self.googlenet.conv1.conv = nn.Conv2d(
+            in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
+        )
+        self.googlenet.fc = nn.Linear(1024, 10)
+
+    def forward(self, x):
+        return self.googlenet(x)
+
+
 class ResNet(BaseModel):
     def __init__(self, in_channels, lr=1e-3):
         super().__init__(lr)
@@ -148,8 +187,7 @@ class ResNet(BaseModel):
         self.resnet.conv1 = nn.Conv2d(
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
         )
-        num_ftrs = self.resnet.fc.in_features
-        self.resnet.fc = nn.Linear(num_ftrs, 10)
+        self.resnet.fc = nn.Linear(512, 10)
 
     def forward(self, x):
         return self.resnet(x)
