@@ -13,7 +13,7 @@ from torchvision.datasets import CIFAR10, MNIST, FashionMNIST
 from tqdm import tqdm
 
 from datasets import CIFAR10DataModule, MNISTDataModule
-from model import MLP, SimpleCNN
+from model import MLP, ResNet, SimpleCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
@@ -41,6 +41,8 @@ def train(args, train_size):
                 model = SimpleCNN(args.dataset, args.in_channels)
             elif args.model_type == "mlp":
                 model = MLP(args.img_height, args.img_width, args.in_channels)
+            elif args.model_type == "resnet":
+                model = ResNet(args.in_channels)
             if args.verbose:
                 print(
                     summary(
