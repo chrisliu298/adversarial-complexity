@@ -96,13 +96,13 @@ class BaseModel(pl.LightningModule):
 
 
 class MLP(BaseModel):
-    def __init__(self, width, height, in_channels, lr=1e-3):
+    def __init__(self, height, width, in_channels, lr=1e-3):
         super().__init__(lr)
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_channels * width * height, 128),
+            nn.Linear(in_channels * height * width, 1024),
             nn.ReLU(),
-            nn.Linear(128, 10),
+            nn.Linear(1024, 10),
         )
 
     def forward(self, x):

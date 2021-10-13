@@ -40,7 +40,7 @@ def train(args, train_size):
             if args.model_type == "cnn":
                 model = SimpleCNN(args.dataset, args.in_channels)
             elif args.model_type == "mlp":
-                model = MLP(args.dataset, args.in_channels)
+                model = MLP(args.img_height, args.img_width, args.in_channels)
             if args.verbose:
                 print(
                     summary(
