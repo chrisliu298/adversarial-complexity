@@ -16,14 +16,18 @@ class ImageDataModule(LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-    def prepare_data(self, train_size):
-        # Load raw train and test datasets
-        raw_train_dataset = self.dataset_fn(
+    def download_data(self):
+        train_dataset = self.dataset_fn(
             root="/tmp/data", train=True, transform=self.transforms, download=True
         )
-        raw_test_dataset = self.dataset_fn(
+        test_dataset = raw_test_dataset = self.dataset_fn(
             root="/tmp/data", train=False, transform=self.transforms, download=True
         )
+        return (train_dataset, test_dataset)
+
+    def prepare_data(self, train_size):
+        # Load raw train and test datasets
+        raw_train_dataset, raw_test_dataset = self.download_data()
         # Define random sample indices and train/val splits
         sample_idx = choice(len(raw_train_dataset), train_size, replace=False)
         train_split_idx, val_split_idx = train_test_split(
