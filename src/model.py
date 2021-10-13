@@ -107,11 +107,13 @@ class CNN(BaseModel):
             nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
         )
         self.fc_block = nn.Sequential(
-            nn.Flatten(), nn.Linear(64 * 7 * 7, 1024), nn.ReLU(), nn.Linear(1024, 10),
+            nn.Flatten(),
+            nn.Linear(64 * 7 * 7, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 10),
         )
 
     def forward(self, x):
-        x = x.float()
         x = self.conv1_block(x)
         x = self.conv2_block(x)
         output = self.fc_block(x)

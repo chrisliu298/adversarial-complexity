@@ -32,7 +32,8 @@ class ImageDataModule(LightningDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.unsqueeze(raw_train_dataset.data, dim=1), raw_train_dataset.targets
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
+            raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
             train_dataset_sample[0][train_split_idx],
@@ -43,7 +44,8 @@ class ImageDataModule(LightningDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.unsqueeze(raw_test_dataset.data, dim=1), raw_test_dataset.targets
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
+            raw_test_dataset.targets,
         )
 
     def train_dataloader(self):
