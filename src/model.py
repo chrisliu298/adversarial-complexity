@@ -95,33 +95,23 @@ class BaseModel(pl.LightningModule):
         return optim.Adam(self.parameters(), lr=self.lr)
 
 
-class MNISTCNN(BaseModel):
-    def __init__(self, in_channels=1, lr=1e-3):
+class MLP(BaseModel):
+    def __init__(self, width, height, in_channels, lr=1e-3):
         super().__init__(lr)
-        self.conv1_block = nn.Sequential(
-            nn.Conv2d(in_channels, 32, 5, 1, padding="same"),
-            nn.ReLU(),
-            nn.MaxPool2d((2, 2)),
-        )
-        self.conv2_block = nn.Sequential(
-            nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
-        )
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 1024),
+            nn.Linear(in_channels * width * height, 128),
             nn.ReLU(),
-            nn.Linear(1024, 10),
+            nn.Linear(128, 10),
         )
 
     def forward(self, x):
-        x = self.conv1_block(x)
-        x = self.conv2_block(x)
         output = self.fc_block(x)
         return output
 
 
-class CIFAR10CNN(BaseModel):
-    def __init__(self, in_channels=1, lr=1e-3):
+class SimpleCNN(BaseModel):
+    def __init__(self, dataset, in_channels, lr=1e-3):
         super().__init__(lr)
         self.conv1_block = nn.Sequential(
             nn.Conv2d(in_channels, 32, 5, 1, padding="same"),
@@ -131,9 +121,14 @@ class CIFAR10CNN(BaseModel):
         self.conv2_block = nn.Sequential(
             nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
         )
+        wh = {
+            "cifar10": 8,
+            "fashion-mnist": 7,
+            "mnist": 7,
+        }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64 * 8 * 8, 1024),
+            nn.Linear(64 * wh[dataset] * wh[dataset], 1024),
             nn.ReLU(),
             nn.Linear(1024, 10),
         )

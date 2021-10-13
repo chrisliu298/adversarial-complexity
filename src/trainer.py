@@ -9,11 +9,11 @@ from statistics import mean, median, stdev
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchinfo import summary
-from torchvision.datasets import CIFAR10, MNIST
+from torchvision.datasets import CIFAR10, MNIST, FashionMNIST
 from tqdm import tqdm
 
 from datasets import CIFAR10DataModule, MNISTDataModule
-from model import CIFAR10CNN, MNISTCNN
+from model import MLP, SimpleCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
@@ -37,10 +37,10 @@ def train(args, train_size):
             val_dataloader = datamodule.val_dataloader()
             test_dataloader = datamodule.test_dataloader()
 
-            if args.dataset == "mnist":
-                model = MNISTCNN(args.in_channels)
-            elif args.dataset == "cifar10":
-                model = CIFAR10CNN(args.in_channels)
+            if args.model_type == "cnn":
+                model = SimpleCNN(args.dataset, args.in_channels)
+            elif args.model_type == "mlp":
+                model = MLP(args.dataset, args.in_channels)
             if args.verbose:
                 print(
                     summary(
