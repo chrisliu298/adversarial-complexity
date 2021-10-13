@@ -12,8 +12,8 @@ from torchinfo import summary
 from torchvision.datasets import CIFAR10, MNIST
 from tqdm import tqdm
 
-from datasets import ImageDataModule
-from model import CNN
+from datasets import CIFAR10DataModule, MNISTDataModule
+from model import CIFAR10CNN, MNISTCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
@@ -22,8 +22,12 @@ warnings.filterwarnings("ignore")
 
 def train(args, train_size):
     train_acc_log, val_acc_log, test_acc_log = [], [], []
-    dataset_fn = MNIST if args.dataset == "mnist" else CIFAR10
-    datamodule = ImageDataModule(dataset_fn, args.batch_size, args.num_workers)
+    if args.dataset == "mnist":
+        datamodule = MNISTDataModule(MNIST, args.batch_size, args.num_workers)
+    elif args.dataset == "cifar10":
+        datamodule = CIFAR10DataModule(CIFAR10, args.batch_size, args.num_workers)
+
+    datamodule.download_data()
     with tqdm(
         desc=f"train_size = {train_size}", total=args.num_trials, file=sys.stdout
     ) as pbar:
@@ -33,8 +37,10 @@ def train(args, train_size):
             val_dataloader = datamodule.val_dataloader()
             test_dataloader = datamodule.test_dataloader()
 
-            if args.model_type == "cnn":
-                model = CNN(args.in_channels)
+            if args.dataset == "mnist":
+                model = MNISTCNN(args.in_channels)
+            elif args.dataset == "cifar10":
+                model = CIFAR10CNN(args.in_channels)
             if args.verbose:
                 print(
                     summary(
