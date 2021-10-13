@@ -3,14 +3,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torchmetrics.functional.classification import accuracy
 from cleverhans.torch.attacks.projected_gradient_descent import (
     projected_gradient_descent,
 )
+from torchmetrics.functional.classification import accuracy
 
 
 class BaseModel(pl.LightningModule):
-    def __init__(self, lr, adv_train):
+    def __init__(self, lr):
         super().__init__()
         self.train_hist = []
         self.val_hist = []
@@ -107,13 +107,11 @@ class CNN(BaseModel):
             nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
         )
         self.fc_block = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 1024),
-            nn.ReLU(),
-            nn.Linear(1024, 10),
+            nn.Flatten(), nn.Linear(64 * 7 * 7, 1024), nn.ReLU(), nn.Linear(1024, 10),
         )
 
     def forward(self, x):
+        x = x.float()
         x = self.conv1_block(x)
         x = self.conv2_block(x)
         output = self.fc_block(x)

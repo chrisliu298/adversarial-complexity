@@ -1,17 +1,23 @@
 import gc
+import logging
 import os
 import sys
+import warnings
 from datetime import datetime
 from statistics import mean, median, stdev
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from torchinfo import summary
 from torchvision.datasets import CIFAR10, MNIST
 from tqdm import tqdm
 
 from datasets import ImageDataModule
 from model import CNN
 from utils import format_output
+
+logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore")
 
 
 def train(args, train_size):
@@ -31,13 +37,15 @@ def train(args, train_size):
                 model = CNN(args.in_channels)
             if args.verbose:
                 print(
-                    model,
-                    input_size=(
-                        args.batch_size,
-                        args.in_channels,
-                        args.img_height,
-                        args.img_width,
-                    ),
+                    summary(
+                        model,
+                        input_size=(
+                            args.batch_size,
+                            args.in_channels,
+                            args.img_height,
+                            args.img_width,
+                        ),
+                    )
                 )
 
             model_checkpoint_callback = ModelCheckpoint(

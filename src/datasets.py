@@ -1,8 +1,9 @@
+import torch
 import numpy as np
 from numpy.random import choice
 from pytorch_lightning import LightningDataModule
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, TensorDataset, random_split
+from torch.utils.data import DataLoader, TensorDataset
 from torchvision.transforms import Compose, ToTensor
 
 
@@ -31,7 +32,7 @@ class ImageDataModule(LightningDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            raw_train_dataset.data, raw_train_dataset.targets
+            torch.unsqueeze(raw_train_dataset.data, dim=1), raw_train_dataset.targets
         )[sample_idx]
         self.train_dataset = TensorDataset(
             train_dataset_sample[0][train_split_idx],
@@ -42,7 +43,7 @@ class ImageDataModule(LightningDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            raw_test_dataset.data, raw_test_dataset.targets
+            torch.unsqueeze(raw_test_dataset.data, dim=1), raw_test_dataset.targets
         )
 
     def train_dataloader(self):
