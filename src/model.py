@@ -97,13 +97,13 @@ class BaseModel(pl.LightningModule):
 
 
 class MLP(BaseModel):
-    def __init__(self, height, width, in_channels, lr=1e-3):
+    def __init__(self, height, width, in_channels, output_dim, lr=1e-3):
         super().__init__(lr)
         self.fc_block = nn.Sequential(
             nn.Flatten(),
             nn.Linear(in_channels * height * width, 1024),
             nn.ReLU(),
-            nn.Linear(1024, 10),
+            nn.Linear(1024, output_dim),
         )
 
     def forward(self, x):
@@ -112,7 +112,7 @@ class MLP(BaseModel):
 
 
 class SimpleCNN(BaseModel):
-    def __init__(self, dataset, in_channels, lr=1e-3):
+    def __init__(self, dataset, in_channels, output_dim, lr=1e-3):
         super().__init__(lr)
         self.conv1_block = nn.Sequential(
             nn.Conv2d(in_channels, 32, 5, 1, padding="same"),
@@ -131,7 +131,7 @@ class SimpleCNN(BaseModel):
             nn.Flatten(),
             nn.Linear(64 * wh[dataset] * wh[dataset], 1024),
             nn.ReLU(),
-            nn.Linear(1024, 10),
+            nn.Linear(1024, output_dim),
         )
 
     def forward(self, x):
@@ -142,13 +142,13 @@ class SimpleCNN(BaseModel):
 
 
 class ResNet(BaseModel):
-    def __init__(self, in_channels, lr=1e-3):
+    def __init__(self, in_channels, output_dim, lr=1e-3):
         super().__init__(lr)
         self.resnet = resnet18(pretrained=True)
         self.resnet.conv1 = nn.Conv2d(
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
         )
-        self.resnet.fc = nn.Linear(512, 10)
+        self.resnet.fc = nn.Linear(512, output_dim)
 
     def forward(self, x):
         return self.resnet(x)

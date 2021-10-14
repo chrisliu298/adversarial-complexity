@@ -42,11 +42,13 @@ def train(args, train_size):
             test_dataloader = datamodule.test_dataloader()
 
             if args.model_type == "cnn":
-                model = SimpleCNN(args.dataset, args.in_channels)
+                model = SimpleCNN(args.dataset, args.in_channels, args.output_dim)
             elif args.model_type == "mlp":
-                model = MLP(args.img_height, args.img_width, args.in_channels)
+                model = MLP(
+                    args.img_height, args.img_width, args.in_channels, args.output_dim
+                )
             elif args.model_type == "resnet":
-                model = ResNet(args.in_channels)
+                model = ResNet(args.in_channels, args.output_dim)
             if args.verbose:
                 print(
                     summary(

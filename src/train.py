@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument("--notebook", default=False, action="store_true")
     parser.add_argument("--num_trials", type=int, default=10)
     parser.add_argument("--num_workers", type=int, default=2)
+    parser.add_argument("--output_dim", type=int, required=True)
     parser.add_argument("--patience", type=int, default=10)
     parser.add_argument("--step_train_size", type=int, required=True)
     parser.add_argument("--target_dir", type=str, default=".")
