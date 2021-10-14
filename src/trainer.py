@@ -12,8 +12,8 @@ from torchinfo import summary
 from torchvision.datasets import CIFAR10, MNIST, FashionMNIST
 from tqdm import tqdm
 
-from datasets import CIFAR10DataModule, MNISTDataModule
-from model import MLP, VGG, AlexNet, GoogLeNet, ResNet, SimpleCNN
+from datasets import CIFAR10DataModule, FashionMNISTDataModule, MNISTDataModule
+from model import MLP, ResNet, SimpleCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
@@ -24,6 +24,10 @@ def train(args, train_size):
     train_acc_log, val_acc_log, test_acc_log = [], [], []
     if args.dataset == "mnist":
         datamodule = MNISTDataModule(MNIST, args.batch_size, args.num_workers)
+    elif args.dataset == "fashion-mnist":
+        datamodule = FashionMNISTDataModule(
+            FashionMNIST, args.batch_size, args.num_workers
+        )
     elif args.dataset == "cifar10":
         datamodule = CIFAR10DataModule(CIFAR10, args.batch_size, args.num_workers)
 
