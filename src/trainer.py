@@ -43,7 +43,10 @@ def train(args, train_size):
     train_acc_log, val_acc_log, test_acc_log = [], [], []
     if args.dataset == "emnist":
         datamodule = data_modules[args.dataset](
-            dataset_fns[args.dataset], args.split, args.batch_size, args.num_workers
+            dataset_fns[args.dataset],
+            args.emnist_split,
+            args.batch_size,
+            args.num_workers,
         )
     else:
         datamodule = data_modules[args.dataset](

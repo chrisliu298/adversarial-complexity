@@ -126,6 +126,7 @@ class SimpleCNN(BaseModel):
             "cifar10": 8,
             "fashion-mnist": 7,
             "mnist": 7,
+            "emnist": 7,
         }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
