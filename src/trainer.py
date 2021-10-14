@@ -9,27 +9,46 @@ from statistics import mean, median, stdev
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchinfo import summary
-from torchvision.datasets import CIFAR10, MNIST, FashionMNIST
+from torchvision.datasets import CIFAR10, MNIST, FashionMNIST, EMNIST
 from tqdm import tqdm
 
-from datasets import CIFAR10DataModule, FashionMNISTDataModule, MNISTDataModule
+from datasets import (
+    CIFAR10DataModule,
+    EMNISTDataModule,
+    FashionMNISTDataModule,
+    MNISTDataModule,
+)
 from model import MLP, ResNet, SimpleCNN
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore")
 
+dataset_fns = {
+    "mnist": MNIST,
+    "fashion-mnist": FashionMNIST,
+    "emnist": EMNIST,
+    "cifar10": CIFAR10,
+}
+
+data_modules = {
+    "mnist": MNISTDataModule,
+    "fashion-mnist": FashionMNISTDataModule,
+    "emnist": EMNISTDataModule,
+    "cifar10": CIFAR10DataModule,
+}
+
 
 def train(args, train_size):
     train_acc_log, val_acc_log, test_acc_log = [], [], []
-    if args.dataset == "mnist":
-        datamodule = MNISTDataModule(MNIST, args.batch_size, args.num_workers)
-    elif args.dataset == "fashion-mnist":
-        datamodule = FashionMNISTDataModule(
-            FashionMNIST, args.batch_size, args.num_workers
+    if args.dataset == "emnist":
+        datamodule = data_modules[args.dataset](
+            dataset_fns[args.dataset], args.split, args.batch_size, args.num_workers
         )
-    elif args.dataset == "cifar10":
-        datamodule = CIFAR10DataModule(CIFAR10, args.batch_size, args.num_workers)
+    else:
+        datamodule = data_modules[args.dataset](
+            dataset_fns[args.dataset], args.batch_size, args.num_workers
+        )
 
     datamodule.download_data()
     with tqdm(

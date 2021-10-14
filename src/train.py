@@ -7,6 +7,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training configuration")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--dataset", type=str, required=True)
+    parser.add_argument("--emnist_split", type=str, default="balanced")
     parser.add_argument("--img_height", type=int, required=True)
     parser.add_argument("--img_width", type=int, required=True)
     parser.add_argument("--in_channels", type=int, required=True)
