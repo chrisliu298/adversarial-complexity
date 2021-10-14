@@ -70,7 +70,7 @@ def train(args, train_size):
                     args.img_height, args.img_width, args.in_channels, args.output_dim
                 )
             elif args.model_type == "resnet":
-                model = ResNet(args.in_channels, args.output_dim)
+                model = ResNet(args.in_channels, args.output_dim, args.resnet_layers)
             if args.verbose:
                 print(
                     summary(

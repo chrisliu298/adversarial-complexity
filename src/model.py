@@ -7,7 +7,7 @@ from cleverhans.torch.attacks.projected_gradient_descent import (
     projected_gradient_descent,
 )
 from torchmetrics.functional.classification import accuracy
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnet34, resnet50
 
 
 class BaseModel(pl.LightningModule):
@@ -143,13 +143,20 @@ class SimpleCNN(BaseModel):
 
 
 class ResNet(BaseModel):
-    def __init__(self, in_channels, output_dim, lr=1e-3):
+    def __init__(self, in_channels, output_dim, layers, lr=1e-3):
         super().__init__(lr)
-        self.resnet = resnet18(pretrained=True)
+        resnets = {
+            18: resnet18,
+            34: resnet34,
+            50: resnet50,
+        }
+        self.resnet = resnets[layers](pretrained=True)
         self.resnet.conv1 = nn.Conv2d(
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
         )
-        self.resnet.fc = nn.Linear(512, output_dim)
+        self.resnet.fc = (
+            nn.Linear(2048, output_dim) if layers == 50 else nn.Linear(512, output_dim)
+        )
 
     def forward(self, x):
         return self.resnet(x)
