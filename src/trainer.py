@@ -64,17 +64,32 @@ def train(args, train_size):
             test_dataloader = datamodule.test_dataloader()
 
             assert args.model_type in [
-                "mlp",
-                "cnn",
+                "mlp-small",
+                "mlp-medium",
+                "mlp-large",
+                "cnn-small",
+                "cnn-medium",
+                "cnn-large",
                 "resnet-18",
                 "resnet-34",
                 "resnet-50",
             ]
-            if args.model_type == "cnn":
-                model = SimpleCNN(args.dataset, args.in_channels, args.output_dim)
-            elif args.model_type == "mlp":
+            if "cnn" in args.model_type:
+                model = SimpleCNN(
+                    args.dataset,
+                    args.in_channels,
+                    args.height,
+                    args.width,
+                    args.output_dim,
+                    args.model_type.split("-")[1],
+                )
+            elif "mlp" in args.model_type:
                 model = MLP(
-                    args.img_height, args.img_width, args.in_channels, args.output_dim
+                    args.height,
+                    args.width,
+                    args.in_channels,
+                    args.output_dim,
+                    args.model_type.split("-")[1],
                 )
             elif "resnet" in args.model_type:
                 model = ResNet(
@@ -89,8 +104,8 @@ def train(args, train_size):
                         input_size=(
                             args.batch_size,
                             args.in_channels,
-                            args.img_height,
-                            args.img_width,
+                            args.height,
+                            args.width,
                         ),
                     )
                 )

@@ -1,3 +1,5 @@
+from math import floor
+
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -8,6 +10,7 @@ from cleverhans.torch.attacks.projected_gradient_descent import (
 )
 from torchmetrics.functional.classification import accuracy
 from torchvision.models import resnet18, resnet34, resnet50
+from torchvision.models.resnet import wide_resnet101_2
 
 
 class BaseModel(pl.LightningModule):
@@ -97,13 +100,18 @@ class BaseModel(pl.LightningModule):
 
 
 class MLP(BaseModel):
-    def __init__(self, height, width, in_channels, output_dim, lr=1e-3):
+    def __init__(self, height, width, in_channels, output_dim, model_size, lr=1e-3):
         super().__init__(lr)
+        model_sizes = {
+            "small": 1024,
+            "medium": 2048,
+            "large": 4096,
+        }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_channels * height * width, 1024),
+            nn.Linear(in_channels * height * width, model_sizes[model_size]),
             nn.ReLU(),
-            nn.Linear(1024, output_dim),
+            nn.Linear(model_sizes[model_size], output_dim),
         )
 
     def forward(self, x):
@@ -112,27 +120,41 @@ class MLP(BaseModel):
 
 
 class SimpleCNN(BaseModel):
-    def __init__(self, dataset, in_channels, output_dim, lr=1e-3):
+    def __init__(
+        self, dataset, in_channels, height, width, output_dim, model_size, lr=1e-3
+    ):
         super().__init__(lr)
+        model_sizes = {
+            "small": [32, 64, 1024],
+            "medium": [64, 128, 2048],
+            "large": [128, 256, 4096],
+        }
         self.conv1_block = nn.Sequential(
-            nn.Conv2d(in_channels, 32, 5, 1, padding="same"),
+            nn.Conv2d(in_channels, model_sizes[model_size][0], 5, 1, padding="same"),
             nn.ReLU(),
             nn.MaxPool2d((2, 2)),
         )
         self.conv2_block = nn.Sequential(
-            nn.Conv2d(32, 64, 5, 1, padding="same"), nn.ReLU(), nn.MaxPool2d((2, 2))
+            nn.Conv2d(
+                model_sizes[model_size][0],
+                model_sizes[model_size][1],
+                5,
+                1,
+                padding="same",
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d((2, 2)),
         )
-        wh = {
-            "cifar10": 8,
-            "fashion-mnist": 7,
-            "mnist": 7,
-            "emnist": 7,
-        }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64 * wh[dataset] * wh[dataset], 1024),
+            nn.Linear(
+                model_sizes[model_size][1]
+                * self.compute_wh(height)
+                * self.compute_wh(width),
+                model_sizes[model_size][2],
+            ),
             nn.ReLU(),
-            nn.Linear(1024, output_dim),
+            nn.Linear(model_sizes[model_size][2], output_dim),
         )
 
     def forward(self, x):
@@ -140,6 +162,9 @@ class SimpleCNN(BaseModel):
         x = self.conv2_block(x)
         output = self.fc_block(x)
         return output
+
+    def compute_wh(self, in_wh):
+        return floor(floor(in_wh / 2) / 2)
 
 
 class ResNet(BaseModel):
