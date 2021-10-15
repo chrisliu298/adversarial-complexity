@@ -5,11 +5,12 @@ import sys
 import warnings
 from datetime import datetime
 from statistics import mean, median, stdev
+from typing import List, Tuple
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchinfo import summary
-from torchvision.datasets import CIFAR10, MNIST, FashionMNIST, EMNIST
+from torchvision.datasets import CIFAR10, EMNIST, MNIST, FashionMNIST
 from tqdm import tqdm
 
 from datasets import (
@@ -39,7 +40,7 @@ data_modules = {
 }
 
 
-def train(args, train_size):
+def train(args, train_size: int) -> Tuple[List, List, List]:
     train_acc_log, val_acc_log, test_acc_log = [], [], []
     if "emnist" in args.dataset:
         datamodule = EMNISTDataModule(
@@ -163,7 +164,7 @@ def train(args, train_size):
     return (train_acc_log, val_acc_log, test_acc_log)
 
 
-def run(args):
+def run(args) -> List:
     output = []
     for train_size in range(
         args.min_train_size, args.max_train_size, args.step_train_size

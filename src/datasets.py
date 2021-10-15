@@ -1,5 +1,6 @@
-import torch
+from _typeshed import NoneType
 import numpy as np
+import torch
 from numpy.random import choice
 from pytorch_lightning import LightningDataModule
 from sklearn.model_selection import train_test_split
@@ -16,7 +17,7 @@ class ImageDataModule(LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-    def download_data(self):
+    def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(
             root="/tmp/data", train=True, transform=self.transforms, download=True
         )
@@ -24,7 +25,7 @@ class ImageDataModule(LightningDataModule):
             root="/tmp/data", train=False, transform=self.transforms, download=True
         )
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader:
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
@@ -32,7 +33,7 @@ class ImageDataModule(LightningDataModule):
             num_workers=self.num_workers,
         )
 
-    def val_dataloader(self):
+    def val_dataloader(self) -> DataLoader:
         return DataLoader(
             self.val_dataset,
             batch_size=self.batch_size,
@@ -40,7 +41,7 @@ class ImageDataModule(LightningDataModule):
             num_workers=self.num_workers,
         )
 
-    def test_dataloader(self):
+    def test_dataloader(self) -> DataLoader:
         return DataLoader(
             self.test_dataset,
             batch_size=self.batch_size,
@@ -53,7 +54,7 @@ class MNISTDataModule(ImageDataModule):
     def __init__(self, dataset_fn, batch_size=128, num_workers=2):
         super().__init__(dataset_fn, batch_size, num_workers)
 
-    def prepare_data(self, train_size):
+    def prepare_data(self, train_size) -> None:
         # Load raw train and test datasets
         raw_train_dataset, raw_test_dataset = (
             self.downloaded_train_dataset,
@@ -88,7 +89,7 @@ class FashionMNISTDataModule(ImageDataModule):
     def __init__(self, dataset_fn, batch_size=128, num_workers=2):
         super().__init__(dataset_fn, batch_size, num_workers)
 
-    def prepare_data(self, train_size):
+    def prepare_data(self, train_size) -> None:
         # Load raw train and test datasets
         raw_train_dataset, raw_test_dataset = (
             self.downloaded_train_dataset,
@@ -124,7 +125,7 @@ class EMNISTDataModule(ImageDataModule):
         super().__init__(dataset_fn, batch_size, num_workers)
         self.split = split
 
-    def download_data(self):
+    def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(
             root="/tmp/data",
             split=self.split,
@@ -140,7 +141,7 @@ class EMNISTDataModule(ImageDataModule):
             download=True,
         )
 
-    def prepare_data(self, train_size):
+    def prepare_data(self, train_size) -> None:
         # Load raw train and test datasets
         raw_train_dataset, raw_test_dataset = (
             self.downloaded_train_dataset,
@@ -175,7 +176,7 @@ class CIFAR10DataModule(ImageDataModule):
     def __init__(self, dataset_fn, batch_size=128, num_workers=2):
         super().__init__(dataset_fn, batch_size, num_workers)
 
-    def prepare_data(self, train_size):
+    def prepare_data(self, train_size) -> None:
         # Load raw train and test datasets
         raw_train_dataset, raw_test_dataset = (
             self.downloaded_train_dataset,

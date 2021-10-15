@@ -1,4 +1,5 @@
 from math import floor
+from typing import Dict
 
 import pytorch_lightning as pl
 import torch
@@ -10,11 +11,10 @@ from cleverhans.torch.attacks.projected_gradient_descent import (
 )
 from torchmetrics.functional.classification import accuracy
 from torchvision.models import resnet18, resnet34, resnet50
-from torchvision.models.resnet import wide_resnet101_2
 
 
 class BaseModel(pl.LightningModule):
-    def __init__(self, lr):
+    def __init__(self, lr: float):
         super().__init__()
         self.train_hist = []
         self.val_hist = []
@@ -25,7 +25,7 @@ class BaseModel(pl.LightningModule):
         # self.num_iter = num_iter
         # self.norm = norm
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         # if self.adv_train:
         #     x = projected_gradient_descent(
@@ -44,7 +44,7 @@ class BaseModel(pl.LightningModule):
         self.log("train_acc", acc, logger=True)
         return {"loss": loss, "train_acc": acc}
 
-    def training_epoch_end(self, outputs):
+    def training_epoch_end(self, outputs) -> None:
         avg_loss = torch.stack([i["loss"] for i in outputs]).mean()
         avg_acc = torch.stack([i["train_acc"] for i in outputs]).mean()
         self.train_hist.append(
@@ -55,7 +55,7 @@ class BaseModel(pl.LightningModule):
             }
         )
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         output = self(x)
         loss = F.cross_entropy(output, y)
@@ -64,7 +64,7 @@ class BaseModel(pl.LightningModule):
         self.log("val_acc", acc, logger=True)
         return {"val_loss": loss, "val_acc": acc}
 
-    def validation_epoch_end(self, outputs):
+    def validation_epoch_end(self, outputs) -> None:
         avg_loss = torch.stack([i["val_loss"] for i in outputs]).mean()
         avg_acc = torch.stack([i["val_acc"] for i in outputs]).mean()
         self.log("avg_val_acc", avg_acc, logger=True)
@@ -76,14 +76,14 @@ class BaseModel(pl.LightningModule):
             }
         )
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
         return {"test_loss": loss, "test_acc": acc}
 
-    def test_epoch_end(self, outputs):
+    def test_epoch_end(self, outputs) -> None:
         avg_loss = torch.stack([i["test_loss"] for i in outputs]).mean()
         avg_acc = torch.stack([i["test_acc"] for i in outputs]).mean()
         self.results = {
@@ -91,7 +91,7 @@ class BaseModel(pl.LightningModule):
             "avg_test_acc": avg_acc.item(),
         }
 
-    def predict_step(self, batch, batch_idx, dataloader_idx=None):
+    def predict_step(self, batch, batch_idx, dataloader_idx=None) -> torch.Tensor:
         x, _ = batch
         return self(x)
 
@@ -100,7 +100,15 @@ class BaseModel(pl.LightningModule):
 
 
 class MLP(BaseModel):
-    def __init__(self, height, width, in_channels, output_dim, model_size, lr=1e-3):
+    def __init__(
+        self,
+        height: int,
+        width: int,
+        in_channels: int,
+        output_dim: int,
+        model_size: str,
+        lr: float = 1e-3,
+    ):
         super().__init__(lr)
         model_sizes = {
             "small": 1024,
@@ -114,14 +122,21 @@ class MLP(BaseModel):
             nn.Linear(model_sizes[model_size], output_dim),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         output = self.fc_block(x)
         return output
 
 
 class SimpleCNN(BaseModel):
     def __init__(
-        self, dataset, in_channels, height, width, output_dim, model_size, lr=1e-3
+        self,
+        dataset: str,
+        in_channels: int,
+        height: int,
+        width: int,
+        output_dim: int,
+        model_size: str,
+        lr: float = 1e-3,
     ):
         super().__init__(lr)
         model_sizes = {
@@ -157,7 +172,7 @@ class SimpleCNN(BaseModel):
             nn.Linear(model_sizes[model_size][2], output_dim),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv1_block(x)
         x = self.conv2_block(x)
         output = self.fc_block(x)
@@ -168,7 +183,9 @@ class SimpleCNN(BaseModel):
 
 
 class ResNet(BaseModel):
-    def __init__(self, in_channels, output_dim, layers, lr=1e-3):
+    def __init__(
+        self, in_channels: int, output_dim: int, layers: int, lr: float = 1e-3
+    ):
         super().__init__(lr)
         resnets = {
             18: resnet18,
@@ -183,5 +200,5 @@ class ResNet(BaseModel):
             nn.Linear(2048, output_dim) if layers == 50 else nn.Linear(512, output_dim)
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.resnet(x)
