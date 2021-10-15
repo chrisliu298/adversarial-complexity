@@ -41,10 +41,10 @@ data_modules = {
 
 def train(args, train_size):
     train_acc_log, val_acc_log, test_acc_log = [], [], []
-    if args.dataset == "emnist":
-        datamodule = data_modules[args.dataset](
-            dataset_fns[args.dataset],
-            args.emnist_split,
+    if "emnist" in args.dataset:
+        datamodule = EMNISTDataModule(
+            EMNIST,
+            args.dataset.split("-")[1],
             args.batch_size,
             args.num_workers,
         )
@@ -63,14 +63,25 @@ def train(args, train_size):
             val_dataloader = datamodule.val_dataloader()
             test_dataloader = datamodule.test_dataloader()
 
+            assert args.model_type in [
+                "mlp",
+                "cnn",
+                "resnet-18",
+                "resnet-34",
+                "resnet-50",
+            ]
             if args.model_type == "cnn":
                 model = SimpleCNN(args.dataset, args.in_channels, args.output_dim)
             elif args.model_type == "mlp":
                 model = MLP(
                     args.img_height, args.img_width, args.in_channels, args.output_dim
                 )
-            elif args.model_type == "resnet":
-                model = ResNet(args.in_channels, args.output_dim, args.resnet_layers)
+            elif "resnet" in args.model_type:
+                model = ResNet(
+                    args.in_channels,
+                    args.output_dim,
+                    int(args.model_type.split("-")[1]),
+                )
             if args.verbose:
                 print(
                     summary(
