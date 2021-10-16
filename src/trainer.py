@@ -10,11 +10,12 @@ from typing import List, Tuple
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchinfo import summary
-from torchvision.datasets import CIFAR10, EMNIST, MNIST, FashionMNIST
+from torchvision.datasets import CIFAR10, CIFAR100, EMNIST, MNIST, FashionMNIST
 from tqdm import tqdm
 
 from datasets import (
     CIFAR10DataModule,
+    CIFAR100DataModule,
     EMNISTDataModule,
     FashionMNISTDataModule,
     MNISTDataModule,
@@ -30,6 +31,7 @@ dataset_fns = {
     "fashion-mnist": FashionMNIST,
     "emnist": EMNIST,
     "cifar10": CIFAR10,
+    "cifar100": CIFAR100,
 }
 
 data_modules = {
@@ -37,6 +39,7 @@ data_modules = {
     "fashion-mnist": FashionMNISTDataModule,
     "emnist": EMNISTDataModule,
     "cifar10": CIFAR10DataModule,
+    "cifar100": CIFAR100DataModule,
 }
 
 
