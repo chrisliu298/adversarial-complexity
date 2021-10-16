@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-from _typeshed import NoneType
 from numpy.random import choice
 from pytorch_lightning import LightningDataModule
 from sklearn.model_selection import train_test_split
