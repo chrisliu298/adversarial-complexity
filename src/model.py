@@ -130,7 +130,6 @@ class MLP(BaseModel):
 class SimpleCNN(BaseModel):
     def __init__(
         self,
-        dataset: str,
         in_channels: int,
         height: int,
         width: int,

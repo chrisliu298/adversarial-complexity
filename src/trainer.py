@@ -77,7 +77,6 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
             ]
             if "cnn" in args.model_type:
                 model = SimpleCNN(
-                    args.dataset,
                     args.in_channels,
                     args.height,
                     args.width,
