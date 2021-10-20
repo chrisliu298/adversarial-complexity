@@ -1,6 +1,7 @@
 from math import floor
 from typing import Dict
 
+import numpy as np
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
@@ -9,37 +10,46 @@ import torch.optim as optim
 from cleverhans.torch.attacks.projected_gradient_descent import (
     projected_gradient_descent,
 )
+from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method
+from easydict import EasyDict
 from torchmetrics.functional.classification import accuracy
 from torchvision.models import resnet18, resnet34, resnet50
 
 
 class BaseModel(pl.LightningModule):
-    def __init__(self, lr: float):
+    def __init__(self, lr: float, adv_config: EasyDict):
         super().__init__()
         self.train_hist = []
         self.val_hist = []
         self.lr = lr
-        # self.adv_train = adv_train
-        # self.eps = eps
-        # self.eps_iter = eps_iter
-        # self.num_iter = num_iter
-        # self.norm = norm
+        self.automatic_optimization = False
+
+        self.attack_type = adv_config.attack_type
+        self.adv_train_mode = adv_config.adv_train_mode
+        self.adv_test_mode = adv_config.adv_test_mode
+        self.eps = adv_config.eps
+        self.eps_iter = adv_config.eps_iter
+        self.nb_iter = adv_config.nb_iter
 
     def training_step(self, batch, batch_idx) -> Dict:
         x, y = batch
-        # if self.adv_train:
-        #     x = projected_gradient_descent(
-        #         model_fn=self(),
-        #         x=x,
-        #         eps=self.eps,
-        #         eps_iter=self.eps_iter,
-        #         nb_iter=self.num_iter,
-        #         norm=self.norm,
-        #     )
-
+        if self.adv_train_mode:
+            if self.attack_type == "pgd":
+                x = projected_gradient_descent(
+                    model_fn=self,
+                    x=x,
+                    eps=self.eps,
+                    eps_iter=self.eps_iter,
+                    nb_iter=self.nb_iter,
+                    norm=np.inf,
+                )
+        optimizer = self.optimizers()
+        optimizer.zero_grad()
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
+        self.manual_backward(loss)
+        optimizer.step()
         self.log("train_loss", loss, logger=True)
         self.log("train_acc", acc, logger=True)
         return {"loss": loss, "train_acc": acc}
@@ -56,7 +66,18 @@ class BaseModel(pl.LightningModule):
         )
 
     def validation_step(self, batch, batch_idx) -> Dict:
+        torch.set_grad_enabled(True)
         x, y = batch
+        if self.adv_train_mode:
+            if self.attack_type == "pgd":
+                x = projected_gradient_descent(
+                    model_fn=self,
+                    x=x,
+                    eps=self.eps,
+                    eps_iter=self.eps_iter,
+                    nb_iter=self.nb_iter,
+                    norm=np.inf,
+                )
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
@@ -77,7 +98,18 @@ class BaseModel(pl.LightningModule):
         )
 
     def test_step(self, batch, batch_idx) -> Dict:
+        torch.set_grad_enabled(True)
         x, y = batch
+        if self.adv_test_mode:
+            if self.attack_type == "pgd":
+                x = projected_gradient_descent(
+                    model_fn=self,
+                    x=x,
+                    eps=self.eps,
+                    eps_iter=self.eps_iter,
+                    nb_iter=self.nb_iter,
+                    norm=np.inf,
+                )
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
@@ -107,9 +139,10 @@ class MLP(BaseModel):
         in_channels: int,
         output_dim: int,
         model_size: str,
+        adv_config,
         lr: float = 1e-3,
     ):
-        super().__init__(lr)
+        super().__init__(lr, adv_config)
         model_sizes = {
             "small": 1024,
             "medium": 2048,
@@ -135,9 +168,10 @@ class SimpleCNN(BaseModel):
         width: int,
         output_dim: int,
         model_size: str,
+        adv_config: EasyDict,
         lr: float = 1e-3,
     ):
-        super().__init__(lr)
+        super().__init__(lr, adv_config)
         model_sizes = {
             "small": [32, 64, 1024],
             "medium": [64, 128, 2048],
@@ -183,9 +217,14 @@ class SimpleCNN(BaseModel):
 
 class ResNet(BaseModel):
     def __init__(
-        self, in_channels: int, output_dim: int, layers: int, lr: float = 1e-3
+        self,
+        in_channels: int,
+        output_dim: int,
+        layers: int,
+        adv_config: EasyDict,
+        lr: float = 1e-3,
     ):
-        super().__init__(lr)
+        super().__init__(lr, adv_config)
         resnets = {
             18: resnet18,
             34: resnet34,

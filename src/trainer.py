@@ -6,6 +6,7 @@ import warnings
 from datetime import datetime
 from statistics import mean, median, stdev
 from typing import List, Tuple
+from easydict import EasyDict
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -44,6 +45,14 @@ data_modules = {
 
 
 def train(args, train_size: int) -> Tuple[List, List, List]:
+    adv_config = EasyDict(
+        adv_train_mode=args.adv_train_mode,
+        adv_test_mode=args.adv_test_mode,
+        attack_type=args.attack_type,
+        eps=args.eps,
+        eps_iter=args.eps_iter,
+        nb_iter=args.nb_iter,
+    )
     train_acc_log, val_acc_log, test_acc_log = [], [], []
     if "emnist" in args.dataset:
         datamodule = EMNISTDataModule(
@@ -85,6 +94,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                     args.width,
                     args.output_dim,
                     args.model_type.split("-")[1],
+                    adv_config,
                 )
             elif "mlp" in args.model_type:
                 model = MLP(
@@ -93,12 +103,14 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                     args.in_channels,
                     args.output_dim,
                     args.model_type.split("-")[1],
+                    adv_config,
                 )
             elif "resnet" in args.model_type:
                 model = ResNet(
                     args.in_channels,
                     args.output_dim,
                     int(args.model_type.split("-")[1]),
+                    adv_config,
                 )
             if args.verbose:
                 print(
