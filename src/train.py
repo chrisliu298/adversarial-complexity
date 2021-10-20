@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # Adv train/test args
     parser.add_argument("--adv_test_mode", default=False, action="store_true")
     parser.add_argument("--adv_train_mode", default=False, action="store_true")
-    parser.add_argument("--attack_type", type=str, default="pgd")
+    parser.add_argument("--attack_type", type=str, default="fgm")
     parser.add_argument("--eps", type=float, default=0.3)
     parser.add_argument("--eps_iter", type=float, default=0.01)
     parser.add_argument("--nb_iter", type=float, default=40)

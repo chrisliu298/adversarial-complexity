@@ -34,7 +34,9 @@ class BaseModel(pl.LightningModule):
     def training_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         if self.adv_train_mode:
-            if self.attack_type == "pgd":
+            if self.attack_type == "fgm":
+                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
+            elif self.attack_type == "pgd":
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
@@ -69,7 +71,9 @@ class BaseModel(pl.LightningModule):
         torch.set_grad_enabled(True)
         x, y = batch
         if self.adv_train_mode:
-            if self.attack_type == "pgd":
+            if self.attack_type == "fgm":
+                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
+            elif self.attack_type == "pgd":
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
@@ -101,7 +105,9 @@ class BaseModel(pl.LightningModule):
         torch.set_grad_enabled(True)
         x, y = batch
         if self.adv_test_mode:
-            if self.attack_type == "pgd":
+            if self.attack_type == "fgm":
+                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
+            elif self.attack_type == "pgd":
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
