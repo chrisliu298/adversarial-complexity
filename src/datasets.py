@@ -172,6 +172,9 @@ class EMNISTDataModule(ImageDataModule):
             transform=self.transforms,
             download=True,
         )
+        if self.split == "letters":
+            self.downloaded_train_dataset.targets -= 1
+            self.downloaded_test_dataset.targets -= 1
 
     def prepare_data(self, train_size) -> None:
         # Load raw train and test datasets
