@@ -150,9 +150,9 @@ class MLP(BaseModel):
     ):
         super().__init__(lr, adv_config)
         model_sizes = {
-            "small": 1024,
-            "medium": 2048,
-            "large": 4096,
+            "small": 512,
+            "medium": 1024,
+            "large": 2048,
         }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
@@ -179,9 +179,9 @@ class SimpleCNN(BaseModel):
     ):
         super().__init__(lr, adv_config)
         model_sizes = {
-            "small": [32, 64, 1024],
-            "medium": [64, 128, 2048],
-            "large": [128, 256, 4096],
+            "small": [32, 64, 512],
+            "medium": [64, 128, 1024],
+            "large": [128, 256, 2048],
         }
         self.conv1_block = nn.Sequential(
             nn.Conv2d(in_channels, model_sizes[model_size][0], 5, 1, padding="same"),
