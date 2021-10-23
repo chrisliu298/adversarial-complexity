@@ -7,10 +7,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method
 from cleverhans.torch.attacks.projected_gradient_descent import (
     projected_gradient_descent,
 )
-from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method
 from easydict import EasyDict
 from torchmetrics.functional.classification import accuracy
 from torchvision.models import resnet18, resnet34, resnet50

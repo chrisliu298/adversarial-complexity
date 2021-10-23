@@ -4,8 +4,7 @@ from numpy.random import choice
 from pytorch_lightning import LightningDataModule
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
-from torchvision.transforms import Compose, Normalize, ToTensor
-from torchvision.transforms.functional import normalize
+from torchvision.transforms import Compose, ToTensor
 
 
 class ImageDataModule(LightningDataModule):
