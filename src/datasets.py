@@ -69,11 +69,7 @@ class MNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255,
-                0.1307,
-                0.3081,
-            ),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -85,11 +81,7 @@ class MNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255,
-                0.1307,
-                0.3081,
-            ),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
             raw_test_dataset.targets,
         )
 
@@ -121,11 +113,7 @@ class FashionMNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255,
-                0.286,
-                0.353,
-            ),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -137,11 +125,7 @@ class FashionMNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255,
-                0.286,
-                0.353,
-            ),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
             raw_test_dataset.targets,
         )
 
@@ -190,10 +174,7 @@ class EMNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255,
-                *self.mean_std[self.split]
-            ),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -205,10 +186,7 @@ class EMNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            normalize(
-                torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255,
-                *self.mean_std[self.split]
-            ),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
             raw_test_dataset.targets,
         )
 
@@ -240,11 +218,7 @@ class CIFAR10DataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            normalize(
-                torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float() / 255,
-                [0.4914, 0.4822, 0.4465],
-                [0.247, 0.2435, 0.2616],
-            ),
+            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float(),
             torch.tensor(raw_train_dataset.targets),
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -256,11 +230,7 @@ class CIFAR10DataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            normalize(
-                torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float() / 255,
-                [0.4914, 0.4822, 0.4465],
-                [0.247, 0.2435, 0.2616],
-            ),
+            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float(),
             torch.tensor(raw_test_dataset.targets),
         )
 
@@ -292,11 +262,7 @@ class CIFAR100DataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            normalize(
-                torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float() / 255,
-                [0.5071, 0.4865, 0.4409],
-                [0.2673, 0.2564, 0.2762],
-            ),
+            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float(),
             torch.tensor(raw_train_dataset.targets),
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -308,10 +274,6 @@ class CIFAR100DataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            normalize(
-                torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float() / 255,
-                [0.5071, 0.4865, 0.4409],
-                [0.2673, 0.2564, 0.2762],
-            ),
+            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float(),
             torch.tensor(raw_test_dataset.targets),
         )
