@@ -185,6 +185,7 @@ class SimpleCNN(BaseModel):
         }
         self.conv1_block = nn.Sequential(
             nn.Conv2d(in_channels, model_sizes[model_size][0], 5, 1, padding="same"),
+            nn.BatchNorm2d(model_sizes[model_size][0]),
             nn.ReLU(),
             nn.MaxPool2d((2, 2)),
         )
@@ -196,6 +197,7 @@ class SimpleCNN(BaseModel):
                 1,
                 padding="same",
             ),
+            nn.BatchNorm2d(model_sizes[model_size][1]),
             nn.ReLU(),
             nn.MaxPool2d((2, 2)),
         )
