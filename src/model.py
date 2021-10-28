@@ -34,6 +34,7 @@ class BaseModel(pl.LightningModule):
     def training_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         if self.adv_train_mode:
+            assert self.attack_type in ["fgsm", "pgd"]
             if self.attack_type == "fgsm":
                 x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
             elif self.attack_type == "pgd":
