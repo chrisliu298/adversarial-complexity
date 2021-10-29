@@ -68,7 +68,7 @@ class MNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255.0,
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -80,7 +80,7 @@ class MNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255.0,
             raw_test_dataset.targets,
         )
 
@@ -112,7 +112,7 @@ class FashionMNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255.0,
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -124,7 +124,7 @@ class FashionMNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255.0,
             raw_test_dataset.targets,
         )
 
@@ -173,7 +173,7 @@ class EMNISTDataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.unsqueeze(raw_train_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_train_dataset.data, dim=1).float() / 255.0,
             raw_train_dataset.targets,
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -185,7 +185,7 @@ class EMNISTDataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.unsqueeze(raw_test_dataset.data, dim=1).float(),
+            torch.unsqueeze(raw_test_dataset.data, dim=1).float() / 255.0,
             raw_test_dataset.targets,
         )
 
@@ -217,7 +217,7 @@ class CIFAR10DataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float(),
+            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
             torch.tensor(raw_train_dataset.targets),
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -229,7 +229,7 @@ class CIFAR10DataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float(),
+            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
             torch.tensor(raw_test_dataset.targets),
         )
 
@@ -261,7 +261,7 @@ class CIFAR100DataModule(ImageDataModule):
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float(),
+            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
             torch.tensor(raw_train_dataset.targets),
         )[sample_idx]
         self.train_dataset = TensorDataset(
@@ -273,6 +273,6 @@ class CIFAR100DataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float(),
+            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
             torch.tensor(raw_test_dataset.targets),
         )
