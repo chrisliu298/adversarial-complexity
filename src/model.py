@@ -13,7 +13,8 @@ from cleverhans.torch.attacks.projected_gradient_descent import (
 )
 from easydict import EasyDict
 from torchmetrics.functional.classification import accuracy
-from torchvision.models import resnet18, resnet34, resnet50
+from torchvision.models import resnet18, resnet34, resnet50, resnext50_32x4d
+from torchvision.models.resnet import wide_resnet50_2
 
 
 class BaseModel(pl.LightningModule):
@@ -247,3 +248,41 @@ class ResNet(BaseModel):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.resnet(x)
+
+
+class ResNeXt(BaseModel):
+    def __init__(
+        self,
+        in_channels: int,
+        output_dim: int,
+        adv_config: EasyDict,
+        lr: float = 1e-3,
+    ):
+        super().__init__(lr, adv_config)
+        self.resnext = resnext50_32x4d(pretrained=True)
+        self.resnext.conv1 = nn.Conv2d(
+            in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
+        )
+        self.resnext.fc = nn.Linear(2048, output_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.resnext(x)
+
+
+class WideResNet(BaseModel):
+    def __init__(
+        self,
+        in_channels: int,
+        output_dim: int,
+        adv_config: EasyDict,
+        lr: float = 1e-3,
+    ):
+        super().__init__(lr, adv_config)
+        self.wide_resnet = wide_resnet50_2(pretrained=True)
+        self.wide_resnet.conv1 = nn.Conv2d(
+            in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
+        )
+        self.wide_resnet.fc = nn.Linear(2048, output_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.wide_resnet(x)

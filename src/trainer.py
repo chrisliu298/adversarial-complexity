@@ -6,8 +6,8 @@ import warnings
 from datetime import datetime
 from statistics import mean, median, stdev
 from typing import List, Tuple
-from easydict import EasyDict
 
+from easydict import EasyDict
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from torchinfo import summary
@@ -21,7 +21,7 @@ from datasets import (
     FashionMNISTDataModule,
     MNISTDataModule,
 )
-from model import MLP, ResNet, SimpleCNN
+from model import MLP, ResNet, ResNeXt, SimpleCNN, WideResNet
 from utils import format_output
 
 logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
@@ -86,6 +86,8 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                 "resnet-18",
                 "resnet-34",
                 "resnet-50",
+                "resnext-50",
+                "wide_resnet-50",
             ]
             if "cnn" in args.model_type:
                 model = SimpleCNN(
@@ -112,6 +114,12 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                     int(args.model_type.split("-")[1]),
                     adv_config,
                 )
+            elif "resnext" in args.model_type:
+                model = ResNeXt(args.in_channels, args.output_dim, adv_config)
+            elif "wide_resnet" in args.model_type:
+                model = WideResNet(args.in_channels, args.output_dim, adv_config)
+            else:
+                raise ValueError("Invalid model")
             if args.verbose:
                 print(
                     summary(
