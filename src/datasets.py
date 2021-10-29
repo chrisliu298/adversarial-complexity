@@ -133,12 +133,12 @@ class EMNISTDataModule(ImageDataModule):
     def __init__(self, dataset_fn, split, batch_size=128, num_workers=2):
         super().__init__(dataset_fn, batch_size, num_workers)
         self.split = split
-        self.mean_std = {
-            "balanced": [0.1751, 0.3332],
-            "digits": [0.1733, 0.3317],
-            "letters": [0.1722, 0.3309],
-            "mnist": [0.1733, 0.3317],
-        }
+        # self.mean_std = {
+        #     "balanced": [0.1751, 0.3332],
+        #     "digits": [0.1733, 0.3317],
+        #     "letters": [0.1722, 0.3309],
+        #     "mnist": [0.1733, 0.3317],
+        # }
 
     def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(

@@ -87,7 +87,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                 "resnet-34",
                 "resnet-50",
                 "resnext-50",
-                "wide_resnet-50",
+                "wide-resnet-50",
             ]
             if "cnn" in args.model_type:
                 model = SimpleCNN(
@@ -116,7 +116,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                 )
             elif "resnext" in args.model_type:
                 model = ResNeXt(args.in_channels, args.output_dim, adv_config)
-            elif "wide_resnet" in args.model_type:
+            elif "wide-resnet" in args.model_type:
                 model = WideResNet(args.in_channels, args.output_dim, adv_config)
             else:
                 raise ValueError("Invalid model")
