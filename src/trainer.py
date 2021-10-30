@@ -87,7 +87,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
                 "resnet-34",
                 "resnet-50",
                 "resnext-50",
-                "wide-resnet-50",
+                "wideresnet-50",
             ]
             if "cnn" in args.model_type:
                 model = SimpleCNN(
