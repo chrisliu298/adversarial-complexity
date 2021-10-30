@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_dim", type=int, required=True)
     parser.add_argument("--patience", type=int, default=10)
     parser.add_argument("--step_train_size", type=int, required=True)
-    parser.add_argument("--target_dir", type=str, default=".")
+    parser.add_argument("--target_dir", type=str, default="results/")
     parser.add_argument("--verbose", type=int, default=0)
     # Adv train/test args
     parser.add_argument("--adv_test_mode", default=False, action="store_true")
