@@ -160,6 +160,8 @@ class MLP(BaseModel):
             nn.Flatten(),
             nn.Linear(in_channels * height * width, model_sizes[model_size]),
             nn.ReLU(),
+            nn.Linear(model_sizes[model_size], model_sizes[model_size]),
+            nn.ReLU(),
             nn.Linear(model_sizes[model_size], output_dim),
         )
 
