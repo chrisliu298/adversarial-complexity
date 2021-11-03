@@ -47,13 +47,13 @@ class BaseModel(pl.LightningModule):
                     nb_iter=self.nb_iter,
                     norm=np.inf,
                 )
-        optimizer = self.optimizers()
-        optimizer.zero_grad()
+        # optimizer = self.optimizers()
+        # optimizer.zero_grad()
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
-        self.manual_backward(loss)
-        optimizer.step()
+        # self.manual_backward(loss)
+        # optimizer.step()
         self.log("train_loss", loss, logger=True)
         self.log("train_acc", acc, logger=True)
         return {"loss": loss, "train_acc": acc}
