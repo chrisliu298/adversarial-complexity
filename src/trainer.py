@@ -71,7 +71,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
         desc=f"train_size = {train_size}", total=args.num_trials, file=sys.stdout
     ) as pbar:
         for _ in range(args.num_trials):
-            datamodule.prepare_data(train_size, args.seed)
+            datamodule.sample_data(train_size, args.seed)
             train_dataloader = datamodule.train_dataloader()
             val_dataloader = datamodule.val_dataloader()
             test_dataloader = datamodule.test_dataloader()
