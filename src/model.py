@@ -47,6 +47,8 @@ class BaseModel(pl.LightningModule):
                     nb_iter=self.nb_iter,
                     norm=np.inf,
                 )
+            else:
+                raise ValueError("Invalid attack type")
         # optimizer = self.optimizers()
         # optimizer.zero_grad()
         output = self(x)
@@ -84,6 +86,8 @@ class BaseModel(pl.LightningModule):
                     nb_iter=self.nb_iter,
                     norm=np.inf,
                 )
+            else:
+                raise ValueError("Invalid attack type")
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
@@ -118,6 +122,8 @@ class BaseModel(pl.LightningModule):
                     nb_iter=self.nb_iter,
                     norm=np.inf,
                 )
+            else:
+                raise ValueError("Invalid attack type")
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
@@ -147,7 +153,7 @@ class MLP(BaseModel):
         in_channels: int,
         output_dim: int,
         model_size: str,
-        adv_config,
+        adv_config: EasyDict,
         lr: float = 1e-3,
     ):
         super().__init__(lr, adv_config)
