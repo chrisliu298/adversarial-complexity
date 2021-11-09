@@ -64,7 +64,7 @@ class MNISTDataModule(ImageDataModule):
             np.random.seed(seed)
         self.sample_idx = choice(len(raw_train_dataset), train_size, replace=False)
         train_split_idx, val_split_idx = train_test_split(
-            np.arange(len(self.sample_idx)), test_size=0.1, shuffle=False
+            np.arange(len(self.sample_idx)), test_size=0.1, shuffle=True
         )
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
@@ -139,7 +139,7 @@ class CIFAR10DataModule(ImageDataModule):
             np.random.seed(seed)
         self.sample_idx = choice(len(raw_train_dataset), train_size, replace=False)
         train_split_idx, val_split_idx = train_test_split(
-            np.arange(len(self.sample_idx)), test_size=0.1, shuffle=False
+            np.arange(len(self.sample_idx)), test_size=0.1, shuffle=True
         )
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
