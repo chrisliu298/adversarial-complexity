@@ -47,10 +47,16 @@ class MNISTDataModule(ImageDataModule):
 
     def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(
-            root="/tmp/data", train=True, transform=self.transforms, download=True
+            root='/tmp/data',
+            train=True,
+            transform=self.transforms,
+            download=True,
         )
         self.downloaded_test_dataset = self.dataset_fn(
-            root="/tmp/data", train=False, transform=self.transforms, download=True
+            root='/tmp/data',
+            train=False,
+            transform=self.transforms,
+            download=True,
         )
 
     def sample_data(self, train_size, seed=None) -> None:
@@ -62,7 +68,9 @@ class MNISTDataModule(ImageDataModule):
         # Define random sample indices and train/val splits
         if seed is not None:
             np.random.seed(seed)
-        self.sample_idx = choice(len(raw_train_dataset), train_size, replace=False)
+        self.sample_idx = choice(
+            len(raw_train_dataset), train_size, replace=False
+        )
         train_split_idx, val_split_idx = train_test_split(
             np.arange(len(self.sample_idx)), test_size=0.1, shuffle=True
         )
@@ -97,20 +105,20 @@ class EMNISTDataModule(MNISTDataModule):
 
     def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(
-            root="/tmp/data",
+            root='/tmp/data',
             split=self.split,
             train=True,
             transform=self.transforms,
             download=True,
         )
         self.downloaded_test_dataset = self.dataset_fn(
-            root="/tmp/data",
+            root='/tmp/data',
             split=self.split,
             train=False,
             transform=self.transforms,
             download=True,
         )
-        if self.split == "letters":
+        if self.split == 'letters':
             self.downloaded_train_dataset.targets -= 1
             self.downloaded_test_dataset.targets -= 1
 
@@ -122,10 +130,16 @@ class CIFAR10DataModule(ImageDataModule):
 
     def download_data(self) -> None:
         self.downloaded_train_dataset = self.dataset_fn(
-            root="/tmp/data", train=True, transform=self.transforms, download=True
+            root='/tmp/data',
+            train=True,
+            transform=self.transforms,
+            download=True,
         )
         self.downloaded_test_dataset = self.dataset_fn(
-            root="/tmp/data", train=False, transform=self.transforms, download=True
+            root='/tmp/data',
+            train=False,
+            transform=self.transforms,
+            download=True,
         )
 
     def sample_data(self, train_size, seed=None) -> None:
@@ -137,14 +151,17 @@ class CIFAR10DataModule(ImageDataModule):
         # Define random sample indices and train/val splits
         if seed is not None:
             np.random.seed(seed)
-        self.sample_idx = choice(len(raw_train_dataset), train_size, replace=False)
+        self.sample_idx = choice(
+            len(raw_train_dataset), train_size, replace=False
+        )
         train_split_idx, val_split_idx = train_test_split(
             np.arange(len(self.sample_idx)), test_size=0.1, shuffle=True
         )
         assert len(np.intersect1d(train_split_idx, val_split_idx)) == 0
         # Convert to tensor dataset for indexing
         train_dataset_sample = TensorDataset(
-            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
+            torch.tensor(raw_train_dataset.data).permute(0, 3, 1, 2).float()
+            / 255.0,
             torch.tensor(raw_train_dataset.targets),
         )[self.sample_idx]
         self.train_dataset = TensorDataset(
@@ -156,7 +173,8 @@ class CIFAR10DataModule(ImageDataModule):
             train_dataset_sample[1][val_split_idx],
         )
         self.test_dataset = TensorDataset(
-            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float() / 255.0,
+            torch.tensor(raw_test_dataset.data).permute(0, 3, 1, 2).float()
+            / 255.0,
             torch.tensor(raw_test_dataset.targets),
         )
 

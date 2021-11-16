@@ -35,10 +35,12 @@ class BaseModel(pl.LightningModule):
     def training_step(self, batch, batch_idx) -> Dict:
         x, y = batch
         if self.adv_train_mode:
-            assert self.attack_type in ["fgsm", "pgd"]
-            if self.attack_type == "fgsm":
-                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
-            elif self.attack_type == "pgd":
+            assert self.attack_type in ['fgsm', 'pgd']
+            if self.attack_type == 'fgsm':
+                x = fast_gradient_method(
+                    model_fn=self, x=x, eps=self.eps, norm=np.inf
+                )
+            elif self.attack_type == 'pgd':
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
@@ -48,7 +50,7 @@ class BaseModel(pl.LightningModule):
                     norm=np.inf,
                 )
             else:
-                raise ValueError("Invalid attack type")
+                raise ValueError('Invalid attack type')
         # optimizer = self.optimizers()
         # optimizer.zero_grad()
         output = self(x)
@@ -56,18 +58,18 @@ class BaseModel(pl.LightningModule):
         acc = accuracy(torch.argmax(output, dim=1), y)
         # self.manual_backward(loss)
         # optimizer.step()
-        self.log("train_loss", loss, logger=True)
-        self.log("train_acc", acc, logger=True)
-        return {"loss": loss, "train_acc": acc}
+        self.log('train_loss', loss, logger=True)
+        self.log('train_acc', acc, logger=True)
+        return {'loss': loss, 'train_acc': acc}
 
     def training_epoch_end(self, outputs) -> None:
-        avg_loss = torch.stack([i["loss"] for i in outputs]).mean()
-        avg_acc = torch.stack([i["train_acc"] for i in outputs]).mean()
+        avg_loss = torch.stack([i['loss'] for i in outputs]).mean()
+        avg_acc = torch.stack([i['train_acc'] for i in outputs]).mean()
         self.train_hist.append(
             {
-                "epoch": self.current_epoch,
-                "avg_train_loss": avg_loss.item(),
-                "avg_train_acc": avg_acc.item(),
+                'epoch': self.current_epoch,
+                'avg_train_loss': avg_loss.item(),
+                'avg_train_acc': avg_acc.item(),
             }
         )
 
@@ -75,9 +77,11 @@ class BaseModel(pl.LightningModule):
         torch.set_grad_enabled(True)
         x, y = batch
         if self.adv_train_mode:
-            if self.attack_type == "fgsm":
-                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
-            elif self.attack_type == "pgd":
+            if self.attack_type == 'fgsm':
+                x = fast_gradient_method(
+                    model_fn=self, x=x, eps=self.eps, norm=np.inf
+                )
+            elif self.attack_type == 'pgd':
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
@@ -87,23 +91,23 @@ class BaseModel(pl.LightningModule):
                     norm=np.inf,
                 )
             else:
-                raise ValueError("Invalid attack type")
+                raise ValueError('Invalid attack type')
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
-        self.log("val_loss", loss, logger=True)
-        self.log("val_acc", acc, logger=True)
-        return {"val_loss": loss, "val_acc": acc}
+        self.log('val_loss', loss, logger=True)
+        self.log('val_acc', acc, logger=True)
+        return {'val_loss': loss, 'val_acc': acc}
 
     def validation_epoch_end(self, outputs) -> None:
-        avg_loss = torch.stack([i["val_loss"] for i in outputs]).mean()
-        avg_acc = torch.stack([i["val_acc"] for i in outputs]).mean()
-        self.log("avg_val_acc", avg_acc, logger=True)
+        avg_loss = torch.stack([i['val_loss'] for i in outputs]).mean()
+        avg_acc = torch.stack([i['val_acc'] for i in outputs]).mean()
+        self.log('avg_val_acc', avg_acc, logger=True)
         self.val_hist.append(
             {
-                "epoch": self.current_epoch,
-                "avg_val_loss": avg_loss.item(),
-                "avg_val_acc": avg_acc.item(),
+                'epoch': self.current_epoch,
+                'avg_val_loss': avg_loss.item(),
+                'avg_val_acc': avg_acc.item(),
             }
         )
 
@@ -111,9 +115,11 @@ class BaseModel(pl.LightningModule):
         torch.set_grad_enabled(True)
         x, y = batch
         if self.adv_test_mode:
-            if self.attack_type == "fgsm":
-                x = fast_gradient_method(model_fn=self, x=x, eps=self.eps, norm=np.inf)
-            elif self.attack_type == "pgd":
+            if self.attack_type == 'fgsm':
+                x = fast_gradient_method(
+                    model_fn=self, x=x, eps=self.eps, norm=np.inf
+                )
+            elif self.attack_type == 'pgd':
                 x = projected_gradient_descent(
                     model_fn=self,
                     x=x,
@@ -123,21 +129,23 @@ class BaseModel(pl.LightningModule):
                     norm=np.inf,
                 )
             else:
-                raise ValueError("Invalid attack type")
+                raise ValueError('Invalid attack type')
         output = self(x)
         loss = F.cross_entropy(output, y)
         acc = accuracy(torch.argmax(output, dim=1), y)
-        return {"test_loss": loss, "test_acc": acc}
+        return {'test_loss': loss, 'test_acc': acc}
 
     def test_epoch_end(self, outputs) -> None:
-        avg_loss = torch.stack([i["test_loss"] for i in outputs]).mean()
-        avg_acc = torch.stack([i["test_acc"] for i in outputs]).mean()
+        avg_loss = torch.stack([i['test_loss'] for i in outputs]).mean()
+        avg_acc = torch.stack([i['test_acc'] for i in outputs]).mean()
         self.results = {
-            "avg_test_loss": avg_loss.item(),
-            "avg_test_acc": avg_acc.item(),
+            'avg_test_loss': avg_loss.item(),
+            'avg_test_acc': avg_acc.item(),
         }
 
-    def predict_step(self, batch, batch_idx, dataloader_idx=None) -> torch.Tensor:
+    def predict_step(
+        self, batch, batch_idx, dataloader_idx=None
+    ) -> torch.Tensor:
         x, _ = batch
         return self(x)
 
@@ -158,9 +166,9 @@ class MLP(BaseModel):
     ):
         super().__init__(lr, adv_config)
         model_sizes = {
-            "small": 512,
-            "medium": 1024,
-            "large": 2048,
+            'small': 512,
+            'medium': 1024,
+            'large': 2048,
         }
         self.fc_block = nn.Sequential(
             nn.Flatten(),
@@ -189,12 +197,14 @@ class SimpleCNN(BaseModel):
     ):
         super().__init__(lr, adv_config)
         model_sizes = {
-            "small": [32, 64, 512],
-            "medium": [64, 128, 1024],
-            "large": [128, 256, 2048],
+            'small': [32, 64, 512],
+            'medium': [64, 128, 1024],
+            'large': [128, 256, 2048],
         }
         self.conv1_block = nn.Sequential(
-            nn.Conv2d(in_channels, model_sizes[model_size][0], 5, 1, padding="same"),
+            nn.Conv2d(
+                in_channels, model_sizes[model_size][0], 5, 1, padding='same'
+            ),
             nn.ReLU(),
             nn.MaxPool2d((2, 2)),
         )
@@ -204,7 +214,7 @@ class SimpleCNN(BaseModel):
                 model_sizes[model_size][1],
                 5,
                 1,
-                padding="same",
+                padding='same',
             ),
             nn.ReLU(),
             nn.MaxPool2d((2, 2)),
@@ -251,7 +261,9 @@ class ResNet(BaseModel):
             in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False
         )
         self.resnet.fc = (
-            nn.Linear(2048, output_dim) if layers == 50 else nn.Linear(512, output_dim)
+            nn.Linear(2048, output_dim)
+            if layers == 50
+            else nn.Linear(512, output_dim)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
