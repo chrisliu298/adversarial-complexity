@@ -24,23 +24,23 @@ from datasets import (
 from model import MLP, ResNet, ResNeXt, SimpleCNN, WideResNet
 from utils import format_output
 
-logging.getLogger('pytorch_lightning').setLevel(logging.ERROR)
-warnings.filterwarnings('ignore')
+logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore")
 
 dataset_fns = {
-    'mnist': MNIST,
-    'fashion-mnist': FashionMNIST,
-    'emnist': EMNIST,
-    'cifar10': CIFAR10,
-    'cifar100': CIFAR100,
+    "mnist": MNIST,
+    "fashion-mnist": FashionMNIST,
+    "emnist": EMNIST,
+    "cifar10": CIFAR10,
+    "cifar100": CIFAR100,
 }
 
 data_modules = {
-    'mnist': MNISTDataModule,
-    'fashion-mnist': FashionMNISTDataModule,
-    'emnist': EMNISTDataModule,
-    'cifar10': CIFAR10DataModule,
-    'cifar100': CIFAR100DataModule,
+    "mnist": MNISTDataModule,
+    "fashion-mnist": FashionMNISTDataModule,
+    "emnist": EMNISTDataModule,
+    "cifar10": CIFAR10DataModule,
+    "cifar100": CIFAR100DataModule,
 }
 
 
@@ -54,10 +54,10 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
         nb_iter=args.nb_iter,
     )
     train_acc_log, val_acc_log, test_acc_log = [], [], []
-    if 'emnist' in args.dataset:
+    if "emnist" in args.dataset:
         datamodule = EMNISTDataModule(
             EMNIST,
-            args.dataset.split('-')[1],
+            args.dataset.split("-")[1],
             args.batch_size,
             args.num_workers,
         )
@@ -68,7 +68,7 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
 
     datamodule.download_data()
     with tqdm(
-        desc=f'train_size = {train_size}',
+        desc=f"train_size = {train_size}",
         total=args.num_trials,
         file=sys.stdout,
     ) as pbar:
@@ -79,51 +79,49 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
             test_dataloader = datamodule.test_dataloader()
 
             assert args.model_type in [
-                'mlp-small',
-                'mlp-medium',
-                'mlp-large',
-                'cnn-small',
-                'cnn-medium',
-                'cnn-large',
-                'resnet-18',
-                'resnet-34',
-                'resnet-50',
-                'resnext-50',
-                'wideresnet-50',
+                "mlp-small",
+                "mlp-medium",
+                "mlp-large",
+                "cnn-small",
+                "cnn-medium",
+                "cnn-large",
+                "resnet-18",
+                "resnet-34",
+                "resnet-50",
+                "resnext-50",
+                "wideresnet-50",
             ]
-            if 'cnn' in args.model_type:
+            if "cnn" in args.model_type:
                 model = SimpleCNN(
                     args.in_channels,
                     args.height,
                     args.width,
                     args.output_dim,
-                    args.model_type.split('-')[1],
+                    args.model_type.split("-")[1],
                     adv_config,
                 )
-            elif 'mlp' in args.model_type:
+            elif "mlp" in args.model_type:
                 model = MLP(
                     args.height,
                     args.width,
                     args.in_channels,
                     args.output_dim,
-                    args.model_type.split('-')[1],
+                    args.model_type.split("-")[1],
                     adv_config,
                 )
-            elif 'resnet' in args.model_type:
+            elif "resnet" in args.model_type:
                 model = ResNet(
                     args.in_channels,
                     args.output_dim,
-                    int(args.model_type.split('-')[1]),
+                    int(args.model_type.split("-")[1]),
                     adv_config,
                 )
-            elif 'resnext' in args.model_type:
+            elif "resnext" in args.model_type:
                 model = ResNeXt(args.in_channels, args.output_dim, adv_config)
-            elif 'wide-resnet' in args.model_type:
-                model = WideResNet(
-                    args.in_channels, args.output_dim, adv_config
-                )
+            elif "wide-resnet" in args.model_type:
+                model = WideResNet(args.in_channels, args.output_dim, adv_config)
             else:
-                raise ValueError('Invalid model')
+                raise ValueError("Invalid model")
             if args.verbose:
                 print(
                     summary(
@@ -139,17 +137,17 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
 
             model_checkpoint_callback = ModelCheckpoint(
                 dirpath=args.model_path,
-                filename='{epoch}-{avg_val_acc}',
-                monitor='avg_val_acc',
+                filename="{epoch}-{avg_val_acc}",
+                monitor="avg_val_acc",
                 save_top_k=10,
-                mode='max',
+                mode="max",
                 every_n_epochs=1,
             )
             early_stopping_callback = EarlyStopping(
-                monitor='avg_val_acc',
+                monitor="avg_val_acc",
                 patience=args.patience,
                 verbose=False,
-                mode='max',
+                mode="max",
             )
             trainer = Trainer(
                 gpus=-1,
@@ -168,31 +166,27 @@ def train(args, train_size: int) -> Tuple[List, List, List]:
             train_acc_log.append(
                 model.train_hist[
                     int(
-                        model_checkpoint_callback.best_model_path.split('/')[
-                            -1
-                        ]
-                        .split('-')[0]
-                        .split('=')[1]
+                        model_checkpoint_callback.best_model_path.split("/")[-1]
+                        .split("-")[0]
+                        .split("=")[1]
                     )
-                ]['avg_train_acc']
+                ]["avg_train_acc"]
             )
-            val_acc_log.append(
-                model_checkpoint_callback.best_model_score.item()
-            )
+            val_acc_log.append(model_checkpoint_callback.best_model_score.item())
             trainer.test(
                 dataloaders=test_dataloader,
                 ckpt_path=model_checkpoint_callback.best_model_path,
                 verbose=0,
             )
-            test_acc_log.append(model.results['avg_test_acc'])
+            test_acc_log.append(model.results["avg_test_acc"])
 
             del model
             gc.collect()
-            os.system(f'rm -rf {args.model_path}')
+            os.system(f"rm -rf {args.model_path}")
             pbar.update()
             pbar.refresh()
             if not args.notebook:
-                print('', flush=True)
+                print("", flush=True)
 
     return (train_acc_log, val_acc_log, test_acc_log)
 
@@ -225,16 +219,16 @@ def run(args) -> List:
         # Print output
         print(print_out)
         # Get current times stamp
-        now = datetime.now().strftime('%Y%m%d%H%M%S')
+        now = datetime.now().strftime("%Y%m%d%H%M%S")
         # Define filename
-        filename = f'{args.dataset}_{args.model_type}_{now}.txt'
+        filename = f"{args.dataset}_{args.model_type}_{now}.txt"
         # Create output file
-        log = open(filename, 'w+')
+        log = open(filename, "w+")
         log.write(print_out)
         log.close()
         # Check if target dir exists
         if not os.path.isdir(args.target_dir):
             os.makedirs(args.target_dir)
         # Move file to target dir
-        os.system(f'cp {filename} {args.target_dir}')
+        os.system(f"cp {filename} {args.target_dir}")
     return output
